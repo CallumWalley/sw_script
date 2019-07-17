@@ -56,8 +56,8 @@ EEG = pop_readegi(input_path, [], [], 'auto');
     
     % Initialise vector with events for processing
     eventVec = []; 
-
-    switch filename(end-5:end-4)
+    disp(['Run type = ', filename(end-1:end)])
+    switch filename(end-1:end)
     case 'et' % RMET
         disp('RMET file selected.')
         eventVec = find(arrayfun(@(x) strcmp(x.type, 'DIN8'), EEG.event));
@@ -75,7 +75,7 @@ EEG = pop_readegi(input_path, [], [], 'auto');
     %% Iterate through events
     for iEvent = eventVec
         % Extract epochs
-        switch filename(end-5:end-4)
+        switch filename(end-1:end)
             case 'et' % RMET
                 tempDataAll = EEG.data(:, EEG.event(iEvent).latency:EEG.event(iEvent + 1).latency);
             case 'st' % BCST

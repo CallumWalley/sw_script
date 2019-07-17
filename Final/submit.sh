@@ -2,8 +2,8 @@
 #===========================================================#
 #                         Variables                         #
 #===========================================================#
-root_dir="/nesi/nobackup/uoa00539/"
-operation="RS" 
+root_dir="/nesi/nobackup/nesi99999/uoa00539/"
+operation="RS_BCST_RMET_Processed" 
 # can be any one of.... 
           #RS_BCST_RMET_Processed
           #RS_Processed
@@ -11,30 +11,37 @@ operation="RS"
           #RS
 
 wait_time="0"       # Time between each job submission. Only neccicary if you want to read the outputs.
-num_jobs="5"       # Number of jobs this script will submit.
+num_jobs="3"       # Number of jobs this script will submit.
 downsample_rate="1"
-project_code="uoa00539"
+project_code="nesi99999"
+mail_address="@"
 #===========================================================#
 #           No need to change anything below here           #
 #===========================================================#
-
-cpus=8
-root_output_dir="${root_dir}OutputFiles/"    #Where outputs go
-root_input_dir="${root_dir}"                 #Where inputs go
-working_dir="${root_dir}Testing/"
-log_dir="${root_dir}Log/"				# SLURM outputs
-
-#Validate directories
-
-mkdir -pv ${root_dir} ${root_output_dir} ${root_input_dir} ${working_dir} ${log_dir} 
-
-debug="false"        # Set to "false"
-interactive="false"        # If true will not use slurm.
+debug="false"               # If true, will not run matlab
+interactive="false"          # If true will not use slurm.
 
 prefix="STEP_1_Processing_" #All scripts start with this.
 suffix="_v3.m"              #All scripts end with this.
 
+#Include trailing slash if missing.
+[[ "${root_dir}" != */ ]] && root_dir="${root_dir}/"
+
+# Check root dir exists
+ls ${root_dir} > /dev/null
+
+root_output_dir="${root_dir}OutputFiles/"    # Where outputs go
+root_input_dir="${root_dir}"                 # Where inputs go
+working_dir="${root_dir}Final/"              # Where scripts are
+log_dir="${root_dir}Log/"				     # Where SLURM outputs go
+
 script_name=${prefix}${operation}${suffix}
+
+#Validate directories
+mkdir -pv ${root_output_dir} ${root_input_dir} ${working_dir} ${log_dir} 
+
+#Validate script exists
+ls ${working_dir}${script_name} > /dev/null
 
 #set variables based on operation type
 
@@ -43,24 +50,32 @@ case ${operation} in
     input_list=$(ls ${root_input_dir}AllRAWfiles4Preprocess/ParticipantsProcessed/**/*p_*.mat)
     mem="20GB"
     time="10:00:00"
+    cpus="4"
 ;;
 "RS_Processed")
     input_list=$(ls ${root_input_dir}AllRAWfiles4Preprocess/ParticipantsProcessed/**/*p_*3rs.mat)
     mem="18GB"
     time="06:00:00"
+    cpus="4"
+
 ;;
 "RS_BCST_RMET")
     input_list=$(ls ${root_input_dir}AllRAWfiles/Participants/*.RAW)
     mem="20GB"
     time="20:00:00"
+    cpus="4"
+
 ;;
 "RS")
     input_list=$(ls ${root_input_dir}AllRAWfiles/Participants/*3rs.RAW)
     mem="18GB"
     time="12:00:00"
+    cpus="4"
+
 ;;
 *)
     echo "No operation given. Must be one of ....\nRS_BCST_RMET_Processed\nRS_Processed\nRS_BCST_RMET\nRS"
+    exit 1
 ;;
 esac
 
@@ -89,6 +104,7 @@ for line in ${input_list[@]}; do
         
             if [ ${debug} != "true" ]; then        
                 bash_file="${log_dir}.${operation}_${filename}"
+# Create script for this run 
 cat <<mainEOF > ${bash_file}
 #!/bin/bash -e
 
@@ -100,6 +116,8 @@ cat <<mainEOF > ${bash_file}
 #SBATCH --cpus-per-task             ${cpus}
 #SBATCH --mem                       ${mem}
 #SBATCH --output                    ${log_dir}%x
+#SBATCH --mail-type                 TIME_LIMIT_90
+#SBATCH --mail-user                 ${mail_address}
 #=================================================#
 # Avoid possible future version issues
 module load MATLAB/2018b
