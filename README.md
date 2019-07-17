@@ -10,7 +10,7 @@ You just need to put it into the same directoy as EEGlab and your inputs(`/nesi/
 3. `cp -r ~/sw_script/Final /nesi/nobackup/uoa00539`
 4. `cd /nesi/nobackup/uoa00539/Testing`
 5. Edit the submit.sh file.
-   * Make sure `root_dir` is equal to `/nesi/nobackup/uoa00539`
+   * Make sure `root_dir` is equal to `/nesi/nobackup/uoa00539/`
    * Choose what operation you want.
    * Select the number of jobs you want to submit. (I reccomend keeping this smallish untill you can verify the results are correct)
    * Set downsample rate.
