@@ -1,6 +1,8 @@
 # sw_script
 
-I put everything into a new directory called *'Testing'*.
+Hey Steve,
+
+I put everything into a new directory called *'Final'*, it's pretty much the same as the old *'Testing'* directory, just with my changes.
 You just need to put it into the same directoy as EEGlab and your inputs are in (`/nesi/nobackup/uoa00539`) and it should work fine.
 
 1. `cd ~
@@ -13,6 +15,7 @@ You just need to put it into the same directoy as EEGlab and your inputs are in 
   * Select the number of jobs you want to submit. (I reccomend keeping this smallish untill you can verify the results are correct)
   * Set downsample rate.
   * Set project code to `uoa00539`
+  * If you want set `mail_address` and you will receive an email if any job is getting close to timing out. (Let me know)
 6. `bash submit.sh`
 
 Results will go into `./Outputs` slurm logs will go into `'/Logs`
