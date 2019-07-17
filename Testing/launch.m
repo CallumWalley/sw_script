@@ -39,7 +39,7 @@ run(script_name);
 disp(output_path);
 
 %Remove Tempfile
-delete output_path
+delete(output_path);
 
 % Save to xlsx spreadsheet
 writetable(tableOutput, output_path, 'Sheet', 1, 'Range', 'A1');

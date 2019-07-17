@@ -2,9 +2,7 @@
 #===========================================================#
 #                         Variables                         #
 #===========================================================#
-root_output_dir="/nesi/nobackup/nesi99999/uoa00539/OutputFiles/"  #Where outputs go
-root_input_dir="/nesi/nobackup/nesi99999/uoa00539/"  #Where outputs go
-
+root_dir="/nesi/nobackup/uoa00539/"
 operation="RS" 
 # can be any one of.... 
           #RS_BCST_RMET_Processed
@@ -12,14 +10,26 @@ operation="RS"
           #RS_BCST_RMET
           #RS
 
-debug="true"        # Set to "false"
 wait_time="0"       # Time between each job submission. Only neccicary if you want to read the outputs.
-num_jobs=4         # Max number of slurm jobs to submit in one go.
-
+num_jobs="5"       # Number of jobs this script will submit.
+downsample_rate="1"
+project_code="uoa00539"
 #===========================================================#
 #           No need to change anything below here           #
 #===========================================================#
-ls root_output_dir > /dev/null
+
+cpus=8
+root_output_dir="${root_dir}OutputFiles/"    #Where outputs go
+root_input_dir="${root_dir}"                 #Where inputs go
+working_dir="${root_dir}Testing/"
+log_dir="${root_dir}Log/"				# SLURM outputs
+
+#Validate directories
+
+mkdir -pv ${root_dir} ${root_output_dir} ${root_input_dir} ${working_dir} ${log_dir} 
+
+debug="false"        # Set to "false"
+interactive="false"        # If true will not use slurm.
 
 prefix="STEP_1_Processing_" #All scripts start with this.
 suffix="_v3.m"              #All scripts end with this.
@@ -42,7 +52,7 @@ case ${operation} in
     input_list=$(ls ${root_input_dir}AllRAWfiles/Participants/*3rs.RAW)
 ;;
 *)
-    echo "No operation given. Must be one of ....\nRS_BCST_RMET_Processed\nRS_Processed\nRS_BCST_RMET\nRS\n"
+    echo "No operation given. Must be one of ....\nRS_BCST_RMET_Processed\nRS_Processed\nRS_BCST_RMET\nRS"
 ;;
 esac
 
@@ -58,19 +68,55 @@ for line in ${input_list[@]}; do
         input_path=${line}
         filename=$(basename $line)
         filename="${filename%.*}"
-        output_path=${root_output_dir}linux_$(date +%Y%m%d)_${filename}_${operation}.xslx
+        job_name="${operation}_${filename}"
+        output_path="${root_output_dir}linux_$(date +%Y%m%d)_${filename}_${operation}.xlsx"
         
         if [ ! -f "${output_path}" ]; then 
 
-            echo "Using input '${line}'...\n" 
+            echo "Using input '${line}'..." 
             echo "Operation will write to path '$output_path'"
             touch ${output_path}           
             num_jobs=$((${num_jobs} - 1))
+            cd ${working_dir}
+        
+            if [ ${debug} != "true" ]; then        
+                bash_file="${log_dir}.${operation}_${filename}"
+cat <<mainEOF > ${bash_file}
+#!/bin/bash -e
 
-            if [ ${debug} != "false" ]; then
-                echo "Submitting job"
-                sleep ${wait_time}
-                #sbatch -A <project_code> -t 10 -p NeSI --wrap  "echo hello world"
+#=================================================#
+#SBATCH --time                      10:00:00
+#SBATCH --account                   ${project_code}
+#SBATCH --job-name                  ${job_name}
+#SBATCH --output                    %x.output
+#SBATCH --cpus-per-task             ${cpus}
+#SBATCH --mem                       20GB
+#SBATCH --output                    ${log_dir}%x
+#=================================================#
+# Avoid possible future version issues
+module load MATLAB/2018b
+
+module load MATLAB
+matlab -nojvm -r "downsampleRate=${downsample_rate}; \\
+input_path='${input_path}'; \\
+filename='${filename}'; \\
+output_path='${output_path}'; \\
+script_name='${script_name}'; \\
+launch; exit;"
+mainEOF
+
+                if [ ${interactive} != "true" ]; then
+                    echo "Submitting job"
+                    sbatch ${bash_file}
+                    sleep ${wait_time}                   
+                else
+                    echo "Running job interactively"
+                    bash ${bash_file}
+                    sleep ${wait_time}               
+                fi 
+                
+            else    
+                echo "Pretend Submitting job"
             fi
 
         else
