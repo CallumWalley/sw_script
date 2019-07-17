@@ -5,7 +5,7 @@ Hey Steve,
 I put everything into a new directory called *'Final'*, it's pretty much the same as the old *'Testing'* directory, just with my changes.
 You just need to put it into the same directoy as EEGlab and your inputs(`/nesi/nobackup/uoa00539`), and everything should work fine.
 
-1. `cd ~
+1. `cd ~`
 2. `git clone https://github.com/CallumWalley/sw_script.git`
 3. `cp -r ~/sw_script/Final /nesi/nobackup/uoa00539`
 4. `cd /nesi/nobackup/uoa00539/Testing`
