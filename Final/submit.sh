@@ -49,13 +49,13 @@ case ${operation} in
 "RS_BCST_RMET_Processed")
     input_list=$(ls ${root_input_dir}AllRAWfiles4Preprocess/ParticipantsProcessed/**/*p_*.mat)
     mem="10GB"
-    time="05:00:00"
+    time="10:00:00"
     cpus="4"
 ;;
 "RS_Processed")
     input_list=$(ls ${root_input_dir}AllRAWfiles4Preprocess/ParticipantsProcessed/**/*p_*3rs.mat)
     mem="18GB"
-    time="06:00:00"
+    time="10:00:00"
     cpus="4"
 
 ;;
@@ -69,7 +69,7 @@ case ${operation} in
 "RS")
     input_list=$(ls ${root_input_dir}AllRAWfiles/Participants/*3rs.RAW)
     mem="18GB"
-    time="12:00:00"
+    time="20:00:00"
     cpus="4"
 
 ;;
@@ -103,7 +103,7 @@ for line in ${input_list[@]}; do
             cd ${working_dir}
         
             if [ ${debug} != "true" ]; then        
-                bash_file="${log_dir}.${operation}_${filename}"
+                bash_file="${log_dir}${operation}_${filename}.sl"
 # Create script for this run 
 cat <<mainEOF > ${bash_file}
 #!/bin/bash -e
@@ -115,7 +115,7 @@ cat <<mainEOF > ${bash_file}
 #SBATCH --output                    %x.output
 #SBATCH --cpus-per-task             ${cpus}
 #SBATCH --mem                       ${mem}
-#SBATCH --output                    ${log_dir}%x
+#SBATCH --output                    ${log_dir}%x.log
 #SBATCH --mail-type                 TIME_LIMIT_90
 #SBATCH --mail-user                 ${mail_address}
 #=================================================#
