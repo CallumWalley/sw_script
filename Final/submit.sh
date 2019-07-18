@@ -3,7 +3,7 @@
 #                         Variables                         #
 #===========================================================#
 root_dir="/nesi/nobackup/uoa00539/"
-operation="RS" 
+operation="RS_Processed" 
 # can be any one of.... 
           #RS_BCST_RMET_Processed
           #RS_Processed
@@ -11,10 +11,10 @@ operation="RS"
           #RS
 
 wait_time="0"       # Time between each job submission. Only neccicary if you want to read the outputs.
-num_jobs="3"       # Number of jobs this script will submit.
+num_jobs="5"       # Number of jobs this script will submit.
 downsample_rate="1"
 project_code="uoa00539"
-mail_address="@"
+mail_address="s.wolfson@auckland.ac.nz"
 #===========================================================#
 #           No need to change anything below here           #
 #===========================================================#
@@ -48,7 +48,7 @@ ls ${working_dir}${script_name} > /dev/null
 case ${operation} in
 "RS_BCST_RMET_Processed")
     input_list=$(ls ${root_input_dir}AllRAWfiles4Preprocess/ParticipantsProcessed/**/*p_*.mat)
-    mem="5GB"
+    mem="10GB"
     time="05:00:00"
     cpus="4"
 ;;
