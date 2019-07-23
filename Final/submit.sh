@@ -3,7 +3,7 @@
 #                         Variables                         #
 #===========================================================#
 root_dir="/nesi/nobackup/uoa00539/"
-operation="RS_Processed" 
+operation="RS_BCST_RMET" 
 # can be any one of.... 
           #RS_BCST_RMET_Processed
           #RS_Processed
@@ -36,6 +36,7 @@ working_dir="${root_dir}Final/"              # Where scripts are
 log_dir="${root_dir}Log/"				     # Where SLURM outputs go
 
 script_name=${prefix}${operation}${suffix}
+echo "version 1.1"
 
 #Validate directories
 mkdir -pv ${root_output_dir} ${root_input_dir} ${working_dir} ${log_dir} 
@@ -93,8 +94,9 @@ for line in ${input_list[@]}; do
         filename="${filename%.*}"
         job_name="${operation}_${filename}"
         output_path="${root_output_dir}linux_$(date +%Y%m%d)_${filename}_${operation}.xlsx"
+        #ls ${root_output_dir}*_${filename}_${operation}.xlsx
         
-        if [ ! -f "${output_path}" ]; then 
+        if ! ls ${root_output_dir}*_${filename}_${operation}.xlsx 1> /dev/null 2>&1;  then 
 
             echo "Using input '${line}'..." 
             echo "Operation will write to path '$output_path'"
@@ -104,6 +106,7 @@ for line in ${input_list[@]}; do
         
             if [ ${debug} != "true" ]; then        
                 bash_file="${log_dir}${operation}_${filename}.sl"
+
 # Create script for this run 
 cat <<mainEOF > ${bash_file}
 #!/bin/bash -e
